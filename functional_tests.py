@@ -35,12 +35,7 @@ class NewVisitorTest(unittest.TestCase):
         
         #他访问那个URL，发现他的待办事项还在
         #他满意的离开了
-        browser.quit()
         
-    if __name__ == '__main__':
-        unittest.main()
-
-        
-    
-
+if __name__ == '__main__':
+    unittest.main()
 
