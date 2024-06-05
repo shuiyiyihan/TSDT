@@ -3,6 +3,10 @@ from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.common.keys import Keys
 from django.test import LiveServerTestCase  
+from selenium.common.exceptions import WebDriverException
+
+MAX_WAIT = 10
+
 class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
@@ -12,6 +16,18 @@ class NewVisitorTest(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit() 
         
+    def wait_for_row_in_list_table(self, row_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element(By.ID,'id_list_table')
+                rows = table.find_elements(By.TAG_NAME,'tr')
+                self.assertIn(row_text, [row.text for row in rows])
+                return
+            except(AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
         
     def check_for_row_in_list_table(self, row_text):
         table = self.browser.find_element(By.ID,'id_list_table')
@@ -36,8 +52,9 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox.send_keys('Buy flowers')
         
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_list_table('1: Buy flowers')
+        self.wait_for_row_in_list_table("1: Buy flowers")
+        # time.sleep(1)
+        # self.check_for_row_in_list_table('1: Buy flowers')
         
         #他按了回车键后，页面更新了
         #代办事项表格中显示了"1: Buy flowers"
@@ -47,14 +64,15 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox= self.browser.find_element(By.ID,'id_new_item')
         inputbox.send_keys('Give a gift ti Lisi')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
+        
         
         # table = self.browser.find_element(By.ID,'id_list_table')
         # rows = table.find_elements(By.TAG_NAME,'tr')
         # self.assertIn('1: Buy flowers',[row.text for row in rows])
         # self.assertIn('2: Give a gift ti Lisi',[row.text for row in rows])
-        self.check_for_row_in_list_table('1: Buy flowers')
-        self.check_for_row_in_list_table
+        self.wait_for_row_in_list_table('1: Buy flowers')
+        self.wait_for_row_in_list_table('2: Give a gift ti Lisi')
+        # self.check_for_row_in_list_table
         
         self.fail('Finish the test!')
         
