@@ -18,4 +18,6 @@ from django.urls import path
 
 urlpatterns = [
     path("",views.home_page, name="home"),
+    path('',views.home_page, name="home"),
+    path("lists/the-new-page/",views.view_list, name="view_list")
 ]
